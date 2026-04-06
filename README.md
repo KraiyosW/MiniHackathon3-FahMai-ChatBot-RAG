@@ -14,31 +14,31 @@ flowchart TD
     style User_Query fill:#e8f5e9,stroke:#43a047,stroke-width:2px,color:#000
     style Answer_Gen fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px,color:#000
 
-    subgraph Data_Processing [1. การย่อยและฝังบริบทข้อมูล (Structural Partitioning & Contextual Augmentation)]
-        A0[(ฐานข้อมูล: Markdown)] --> A1(อ่านไฟล์ Products, Policies, Store_info)
-        A1 --> A2(ทำ Recursive Chunking <br> แบ่งข้อมูลเป็นส่วนย่อยเชื่อมกัน)
-        A2 --> A3(นำข้อมูลให้ LLM สรุปบริบท<br>แล้วนำกลับไปเสริมหน้า Chunk ทุกชิ้น)
+    subgraph Data_Processing ["1. การย่อยและฝังบริบทข้อมูล"]
+        A0[/"ฐานข้อมูล: Markdown"/] --> A1("อ่านไฟล์ Products, Policies, Store_info")
+        A1 --> A2("แบ่งส่วนข้อมูล Recursive Chunking ให้เกยกัน")
+        A2 --> A3("นำข้อมูลให้ LLM สรุปบริบทแล้วนำกลับไปเสริมหน้า Chunk")
     end
 
-    subgraph Indexing [2. ระบบฐานข้อมูลแบบผสมผสาน (Hybrid Indexing)]
-        A3 --> B1(สร้างดัชนี Keyword: BM25 <br> - Sparse Retrieval)
-        A3 --> B2(สร้างดัชนี Vectors: E5 + FAISS <br> - Dense Retrieval)
+    subgraph Indexing ["2. ระบบฐานข้อมูลแบบผสมผสาน"]
+        A3 --> B1("สร้างดัชนี Keyword BM25 Sparse Retrieval")
+        A3 --> B2("สร้างดัชนี Vectors FAISS Dense Retrieval")
     end
 
-    subgraph User_Query [3. รับคำถามและการสืบค้นอัจฉริยะ (Query Refinement & Hybrid Retrieval)]
-        C1(ข้อมูลชุดคำถาม Test Set) --> C2(ระบบเช็คขอบเขตคำถาม <br>Out-of-Scope และตัดคำฟุ่มเฟือย)
-        C2 --> C3(ใช้ LLM เกลาคำถาม <br>ย่อใจความให้เข้าเป้า)
-        C3 --> C4(สืบค้นแบบ Hybrid <br>คำนวณและผสมคะแนนระหว่าง BM25 และ FAISS)
+    subgraph User_Query ["3. รับคำถามและการสืบค้นอัจฉริยะ"]
+        C1("ข้อมูลชุดคำถาม Test Set") --> C2("ระบบเช็คขอบเขตคำถามและตัดคำฟุ่มเฟือย")
+        C2 --> C3("ใช้ LLM เกลาคำถามย่อใจความให้เข้าเป้า")
+        C3 --> C4("สืบค้นแบบ Hybrid ผสมคะแนนระหว่าง BM25 และ FAISS")
         B1 -.-> C4
         B2 -.-> C4
     end
 
-    subgraph Answer_Gen [4. วิศวกรรมคำสั่งสำหรับกระบวนการคิด (Prompt & Chain-of-Thought)]
-        C4 --> D1(ดึงและรวม Top-K Chunks<br>เพื่อสร้าง Context ให้ LLM)
-        D1 --> D2(อัดรวมกับ Prompt ที่เตรียม Few-Shot<br>สำหรับตรรกะเงื่อนไขต่างๆ เช่น ค่าส่งสินค้า)
-        D2 --> D3(สั่งให้ LLM บรรยายเหตุผล<br>ในแท็ก <think>...</think>)
-        D3 --> D4(ดึงคำตอบสุดท้าย <br>จากแท็ก <answer>)
-        D4 --> D5[(ผลลัพธ์: submission.csv)]
+    subgraph Answer_Gen ["4. วิศวกรรมคำสั่งสำหรับกระบวนการคิด"]
+        C4 --> D1("ดึงและรวม Top-K Chunks เพื่อสร้าง Context ให้ LLM")
+        D1 --> D2("อัดรวมกับ Prompt เพื่อวิเคราะห์ตรรกะแบบ Few-Shot")
+        D2 --> D3("สั่งให้ LLM บรรยายเหตุผลในแท็ก think")
+        D3 --> D4("ดึงคำตอบสุดท้ายจากแท็ก answer")
+        D4 --> D5[/"ผลลัพธ์: submission.csv"/]
     end
 ```
 
